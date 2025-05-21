@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quantum Technologies Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Visualization & Content Choices: 
+        **QC Market Forecast:** Report data ($9B 2023, $131B 2040) -> Goal: Show growth -> Viz: Bar Chart (Chart.js) -> Interaction: Tooltips on bars -> Justification: Clear visual of market expansion.
+        **QC Timelines (Fault Tolerance):** Report data (72% by 2035, rest after 2040; Nvidia 15-20 more years) -> Goal: Show expert projections -> Viz: Horizontal Bar Chart (Chart.js) -> Interaction: Tooltips -> Justification: Easy comparison of different expert opinions.
+        **PQC Standards (Table 2.1):** Report table -> Goal: Present standardized algorithms -> Viz: HTML Table -> Interaction: None needed for this small table -> Justification: Direct, clear presentation of factual data.
+        **QS Market Forecast:** Report data (IDTechEx $2.2B by 2045; McKinsey $6B by 2040) -> Goal: Show market growth -> Viz: Bar Chart (Chart.js) -> Interaction: Tooltips -> Justification: Visual trend of market size.
+        **QI Development Stages (Table 4.1):** Report table -> Goal: Show QI evolution -> Viz: HTML Table -> Interaction: None needed -> Justification: Clear, staged progression.
+        **QKD Commercial Systems (Table 5.1):** Report table -> Goal: Compare vendors -> Viz: HTML Table -> Interaction: Hover for row highlight -> Justification: Easy comparison.
+        **PQC vs. QKD (Table 6.1):** Report table -> Goal: Compare security approaches -> Viz: HTML Table -> Interaction: None needed -> Justification: Clear side-by-side comparison.
+        **General Text Sections (Principles, Benefits, Risks):** Report text -> Goal: Inform -> Viz: Structured HTML (headings, lists, paragraphs), Unicode icons for emphasis -> Interaction: Tabbed navigation within sections -> Justification: Readability and organized presentation of qualitative information.
+    -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-button.active { background-color: #0369a1; color: white; }
+        .sub-nav-button.active { background-color: #0ea5e9; color: white; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        h1, h2, h3 { font-weight: 600; }
+        h1 { font-size: 2.25rem; line-height: 2.5rem; margin-bottom: 1rem; color: #1e3a8a; }
+        h2 { font-size: 1.875rem; line-height: 2.25rem; margin-top: 1.5rem; margin-bottom: 0.75rem; color: #1d4ed8; }
+        h3 { font-size: 1.5rem; line-height: 2rem; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #2563eb; }
+        p { margin-bottom: 1rem; line-height: 1.6; color: #374151; }
+        ul { margin-left: 1.5rem; margin-bottom: 1rem; list-style-type: disc; }
+        li { margin-bottom: 0.5rem; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        th, td { border: 1px solid #d1d5db; padding: 0.75rem; text-align: left; }
+        th { background-color: #f3f4f6; color: #1f2937; font-weight: 600; }
+        .nav-button, .sub-nav-button { transition: background-color 0.3s ease; }
+        .icon { margin-right: 0.5rem; }
+        .benefit-icon { color: #10b981; } /* Green */
+        .risk-icon { color: #ef4444; } /* Red */
+        .main-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+        .content-card { background-color: #ffffff; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); margin-bottom:1.5rem; }
+    </style>
+</head>
+<body class="bg-stone-100 text-neutral-800">
+
+    <header class="bg-sky-700 text-white p-6 shadow-md">
+        <div class="main-container flex flex-col sm:flex-row justify-between items-center">
+            <h1 class="text-3xl font-bold text-white">Quantum Technologies: An Interactive Exploration</h1>
+            <nav id="main-nav" class="mt-4 sm:mt-0 flex flex-wrap justify-center gap-2">
+                <button class="nav-button px-4 py-2 rounded-md hover:bg-sky-600 active" onclick="showSection('introduction')">Introduction</button>
+                <button class="nav-button px-4 py-2 rounded-md hover:bg-sky-600" onclick="showSection('qc')">⚙️ QC</button>
+                <button class="nav-button px-4 py-2 rounded-md hover:bg-sky-600" onclick="showSection('pqc')">🛡️ PQC</button>
+                <button class="nav-button px-4 py-2 rounded-md hover:bg-sky-600" onclick="showSection('qs')">🔬 QS</button>
+                <button class="nav-button px-4 py-2 rounded-md hover:bg-sky-600" onclick="showSection('qi')">🌐 QI</button>
+                <button class="nav-button px-4 py-2 rounded-md hover:bg-sky-600" onclick="showSection('qkd')">🔑 QKD</button>
+                <button class="nav-button px-4 py-2 rounded-md hover:bg-sky-600" onclick="showSection('interconnections')">🔗 Interconnections</button>
+                <button class="nav-button px-4 py-2 rounded-md hover:bg-sky-600" onclick="showSection('conclusion')">📜 Conclusion</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container py-8">
+
+        <section id="introduction" class="page-section active">
+            <div class="content-card">
+                <h2>Welcome to the Quantum Realm</h2>
+                <p>This interactive application provides an exploration of five pivotal areas within the second quantum revolution: Quantum Computing (QC), Post-Quantum Cryptography (PQC), Quantum Sensors (QS), the Quantum Internet (QI), and Quantum Key Distribution (QKD). The purpose of this application is to make the complex information from the comprehensive "Quantum Technologies" report more accessible and digestible. You can navigate through each technology to understand its current state, estimated time to commercial viability, potential benefits, and associated risks. Additionally, a dedicated section explores the intricate connections and interdependencies among these groundbreaking technologies. Use the navigation bar above to begin your journey.</p>
+                <p>Understanding this evolving landscape is crucial for researchers, industry stakeholders, and policymakers alike as we navigate the opportunities and challenges presented by these advancements. This application aims to facilitate that understanding by presenting key information in an interactive and structured format.</p>
+            </div>
+        </section>
+
+        <section id="qc" class="page-section" style="display: none;">
+            <div class="content-card">
+                <h1>⚙️ Quantum Computing (QC)</h1>
+                <p>Quantum computing represents a paradigm shift, leveraging quantum mechanics to perform calculations intractable for classical supercomputers. This section explores its core principles, current maturity, commercial outlook, benefits, and risks. Its potential to revolutionize fields like materials science, drug discovery, and AI is driving significant global investment.</p>
+                <nav class="mb-6 flex flex-wrap gap-2" id="qc-sub-nav">
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md active" onclick="showSubSection('qc', 'qc-overview')">Overview & Principles</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qc', 'qc-maturity')">Maturity & Timelines</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qc', 'qc-benefits')">Benefits</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qc', 'qc-risks')">Risks</button>
+                </nav>
+
+                <div id="qc-overview" class="tab-content active">
+                    <h3>Core Principles: Qubits, Superposition, Entanglement, Interference</h3>
+                    <p>Classical computers use bits (0 or 1). Quantum computers use <strong>qubits</strong>, which can be 0, 1, or a <strong>superposition</strong> of both simultaneously. This allows $n$ qubits to represent $2^n$ states, an exponential increase in capacity.</p>
+                    <p><strong>Entanglement</strong> links qubits intrinsically, regardless of distance, crucial for quantum algorithms. <strong>Quantum interference</strong> amplifies correct solutions and cancels incorrect ones. <strong>Measurement</strong> collapses a qubit's superposition to a classical state (0 or 1).</p>
+                    <p>Pioneers include IBM, Google, and D-Wave. Current systems are often Noisy Intermediate-Scale Quantum (NISQ) devices, with limited qubits and susceptibility to noise.</p>
+                </div>
+                <div id="qc-maturity" class="tab-content">
+                    <h3>Current Technological Maturity and Key Advancements</h3>
+                    <p>Google's Sycamore processor demonstrated "quantum supremacy" in 2019, solving a problem much faster than classical supercomputers. NISQ systems have tens to hundreds of physical qubits and suffer from decoherence. Fault-tolerant quantum computing (FTQC) requires robust error correction and millions of physical qubits for thousands of logical qubits, a long-term goal.</p>
+                    <p>Different qubit platforms include superconducting circuits, trapped ions, photonics, neutral atoms, and diamond NV centers. Cloud access to quantum hardware is increasing.</p>
+                    
+                    <h3>Commercial Viability: Forecasts and Adoption Timelines</h3>
+                    <p>McKinsey projects the QC market value at $131 billion by 2040 (from $9B in 2023). Over 72% of experts expect full fault tolerance by 2035. Others, like Nvidia's CEO, see it 15-20+ years away. D-Wave's annealers claim current business benefits for optimization.</p>
+                    <p>Near-term use is in niche applications (logistics, finance, materials simulation). Widespread adoption for complex problems needs FTQC, with roadmaps targeting the 2030s. Government and private funding are accelerating R&D.</p>
+                    <div class="chart-container my-6">
+                        <canvas id="qcMarketChart"></canvas>
+                    </div>
+                    <div class="chart-container my-6">
+                        <canvas id="qcFaultToleranceChart"></canvas>
+                    </div>
+
+                    <h3>Table 1.1: Overview of Leading Quantum Computing Platforms</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Platform Type</th><th>Qubit Basis</th><th>Key Characteristics</th><th>Major Entities</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Superconducting Circuits</td><td>Josephson junctions, transmons</td><td>Fast gates, cryogenic, noise-sensitive</td><td>IBM, Google, Rigetti</td></tr>
+                            <tr><td>Trapped Ions</td><td>Electronic states of ions</td><td>Long coherence, high fidelity, slower gates</td><td>IonQ, Quantinuum</td></tr>
+                            <tr><td>Photonics</td><td>Photons (polarization, path)</td><td>Room temp, probabilistic gates, loss</td><td>PsiQuantum, Xanadu</td></tr>
+                            <tr><td>Neutral Atoms</td><td>Atoms in optical tweezers</td><td>Scalable, Rydberg interactions</td><td>Atom Computing, Pasqal</td></tr>
+                            <tr><td>Diamond NV Centers</td><td>Electron/nuclear spin</td><td>Room temp, quantum memory potential</td><td>Quantum Diamond Tech</td></tr>
+                            <tr><td>Quantum Annealers</td><td>Superconducting flux qubits</td><td>Optimization problems</td><td>D-Wave Systems</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="qc-benefits" class="tab-content">
+                    <h3>Potential Benefits Across Industries</h3>
+                    <ul>
+                        <li><span class="icon benefit-icon">🚀</span><strong>Accelerated Processing & Big Data Analysis:</strong> Massive speedup for complex tasks, analyzing vast datasets.</li>
+                        <li><span class="icon benefit-icon">🧪</span><strong>Chemistry, Materials, Pharmaceuticals:</strong> Accurate molecular modeling, faster discovery of new materials, drugs, catalysts.</li>
+                        <li><span class="icon benefit-icon">💹</span><strong>Financial Modeling & Optimization:</strong> Portfolio optimization, risk analysis, fraud detection.</li>
+                        <li><span class="icon benefit-icon">🤖</span><strong>AI and Machine Learning:</strong> Quantum Machine Learning (QML) for faster training, improved accuracy.</li>
+                        <li><span class="icon benefit-icon">🚚</span><strong>Logistics & Supply Chain:</strong> Optimization of scheduling, routing.</li>
+                        <li><span class="icon benefit-icon">🔒</span><strong>Cryptography:</strong> Potential for new secure communication methods (though also a threat).</li>
+                        <li><span class="icon benefit-icon">🌍</span><strong>Ecology & Environmental Science:</strong> Improved ecological modeling, climate change simulation.</li>
+                        <li><span class="icon benefit-icon">🏗️</span><strong>Architecture, Engineering, Construction (AEC):</strong> Optimizing designs, managing mega-projects, material simulation.</li>
+                    </ul>
+                </div>
+                <div id="qc-risks" class="tab-content">
+                    <h3>Associated Risks: Technical Hurdles and Security Implications</h3>
+                    <h4>Technical Hurdles:</h4>
+                    <ul>
+                        <li><span class="icon risk-icon">📉</span><strong>Decoherence and Noise:</strong> Qubits lose quantum properties due to environmental interaction, causing errors.</li>
+                        <li><span class="icon risk-icon">🧱</span><strong>Qubit Stability and Scalability:</strong> Increasing stable, high-quality qubits is a major challenge.</li>
+                        <li><span class="icon risk-icon">🛠️</span><strong>Quantum Error Correction (QEC):</strong> Resource-intensive, requiring many physical qubits for one logical qubit.</li>
+                        <li><span class="icon risk-icon">🎯</span><strong>State Preparation and Measurement:</strong> Efficiently preparing and accurately measuring quantum states is difficult.</li>
+                    </ul>
+                    <h4>Security Implications:</h4>
+                    <ul>
+                        <li><span class="icon risk-icon">🔓</span><strong>Breaking Current Cryptography:</strong> Shor's algorithm can break RSA and ECC, rendering much secured data vulnerable.</li>
+                        <li><span class="icon risk-icon">📦</span><strong>"Harvest Now, Decrypt Later" (HNDL) Attacks:</strong> Adversaries store encrypted data today to decrypt with future QCs.</li>
+                        <li><span class="icon risk-icon">💥</span><strong>Systemic Vulnerability:</strong> Compromise of encryption standards affects all industries.</li>
+                        <li><span class="icon risk-icon">🔄</span><strong>Transition Challenges to PQC:</strong> Migrating to new standards is complex, lengthy, and costly.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="pqc" class="page-section" style="display: none;">
+            <div class="content-card">
+                <h1>🛡️ Post-Quantum Cryptography (PQC)</h1>
+                <p>PQC aims to develop new cryptographic algorithms secure against both classical and quantum computers, addressing the threat QC poses to current encryption. This section covers its rationale, standardization efforts, viability, benefits, and the challenges of transitioning.</p>
+                <nav class="mb-6 flex flex-wrap gap-2" id="pqc-sub-nav">
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md active" onclick="showSubSection('pqc', 'pqc-overview')">Overview & Rationale</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('pqc', 'pqc-maturity')">Standardization & Viability</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('pqc', 'pqc-benefits')">Benefits</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('pqc', 'pqc-risks')">Risks & Challenges</button>
+                </nav>
+
+                <div id="pqc-overview" class="tab-content active">
+                    <h3>Definition and Rationale: The Quantum Threat</h3>
+                    <p>Current public-key cryptography (RSA, ECC) relies on problems hard for classical computers but solvable by quantum computers (via Shor's algorithm). This vulnerability affects HTTPS, digital signatures, encrypted email, etc.</p>
+                    <p>PQC develops new schemes based on mathematical problems presumed hard for both classical and quantum computers (e.g., lattice-based, code-based, hash-based, multivariate). The goal is interoperable systems with long-term security.</p>
+                    <p>Urgency stems from "Harvest Now, Decrypt Later" (HNDL) attacks. Transitioning infrastructure takes a decade or more, so preparations must start before cryptographically relevant quantum computers (CRQCs) exist.</p>
+                </div>
+                <div id="pqc-maturity" class="tab-content">
+                    <h3>Standardization Efforts: The NIST PQC Standardization Process</h3>
+                    <p>NIST initiated a public competition in 2016. As of August 2024, finalized standards include:</p>
+                    <ul>
+                        <li><strong>FIPS 203 (ML-KEM):</strong> Based on CRYSTALS-KYBER, for general encryption.</li>
+                        <li><strong>FIPS 204 (ML-DSA):</strong> Based on CRYSTALS-Dilithium, for digital signatures.</li>
+                        <li><strong>FIPS 205 (SLH-DSA):</strong> Based on SPHINCS+, for stateless hash-based signatures.</li>
+                    </ul>
+                    <p>FALCON (FIPS 206, digital signatures) and HQC (backup KEM, based on error-correcting codes, final by 2027) are also in progress.</p>
+                    
+                    <h3>Table 2.1: Key NIST PQC Standards and Candidates</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Algorithm Name</th><th>NIST Standard (Status)</th><th>Type</th><th>Mathematical Basis</th><th>Key Characteristics</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>CRYSTALS-KYBER</td><td>FIPS 203 (Finalized)</td><td>KEM</td><td>Structured Lattices</td><td>Primary KEM, good balance.</td></tr>
+                            <tr><td>CRYSTALS-Dilithium</td><td>FIPS 204 (Finalized)</td><td>Digital Signature</td><td>Structured Lattices</td><td>Primary signature, efficient.</td></tr>
+                            <tr><td>SPHINCS+</td><td>FIPS 205 (Finalized)</td><td>Digital Signature</td><td>Hash-Based</td><td>Stateless, larger signatures, well-understood security.</td></tr>
+                            <tr><td>FALCON</td><td>FIPS 206 (Draft Soon)</td><td>Digital Signature</td><td>Structured Lattices</td><td>Very small signatures, complex.</td></tr>
+                            <tr><td>HQC</td><td>Standardization Selected (Final by 2027)</td><td>KEM</td><td>Error-Correcting Codes</td><td>Backup KEM, different math basis.</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Estimated Time to Commercial Viability and Adoption Timelines</h3>
+                    <p>PQC algorithms are classical and implementable now. Commercial viability is tied to standard finalization (first set in 2024) and vendor integration.</p>
+                    <p>Widespread adoption is lengthy. CRQCs could emerge in 10-20 years (RSA/ECC unsafe by 2029, broken by 2034 per Gartner). Migration takes a similar timeframe. US NSA mandates federal switch by 2035. Gartner lists PQC as a top 2025 trend.</p>
+                    <p>A <strong>hybrid approach</strong> (classical + PQC algorithm) is recommended for transition, providing redundancy.</p>
+                    <p>Organizations should: create roadmaps, inventory crypto systems, assess risks, engage vendors, and pilot PQC solutions. Gartner: 1 in 5 orgs budgeting for quantum threats by 2026.</p>
+                </div>
+                <div id="pqc-benefits" class="tab-content">
+                    <h3>Potential Benefits: Future-Proofing Data Security</h3>
+                    <ul>
+                        <li><span class="icon benefit-icon">🛡️</span><strong>Protect Sensitive Data:</strong> Safeguard long-lived data from HNDL attacks.</li>
+                        <li><span class="icon benefit-icon">📈</span><strong>Maintain Business Continuity:</strong> Avoid disruption from compromised encryption.</li>
+                        <li><span class="icon benefit-icon">⚖️</span><strong>Ensure Regulatory Compliance:</strong> Meet evolving security mandates.</li>
+                        <li><span class="icon benefit-icon">🤝</span><strong>Preserve Customer Trust:</strong> Demonstrate proactive security.</li>
+                        <li><span class="icon benefit-icon">💪</span><strong>Support Organizational Resilience:</strong> Build robust security against future threats.</li>
+                    </ul>
+                    <p>PQC ensures continued confidentiality, integrity, and authenticity in a post-quantum world.</p>
+                </div>
+                <div id="pqc-risks" class="tab-content">
+                    <h3>Associated Risks and Challenges</h3>
+                    <ul>
+                        <li><span class="icon risk-icon">🐌</span><strong>Performance Concerns:</strong> Larger key/signature sizes, computational overhead impacting bandwidth, storage, processing (esp. for IoT).</li>
+                        <li><span class="icon risk-icon">🧩</span><strong>Implementation Complexity:</strong> Infrastructure upgrades for new PQC characteristics; migrating legacy systems. Lack of crypto agility.</li>
+                        <li><span class="icon risk-icon">🔬</span><strong>Algorithm Maturity:</strong> Newer than RSA/ECC, risk of new vulnerabilities (e.g., SIKE). Side-channel attack risks. No empirical test against real CRQCs yet.</li>
+                        <li><span class="icon risk-icon">💰</span><strong>Cost and Resources:</strong> Significant investment in updates, hardware, testing, training. (US Fed: $7.1B by 2035).</li>
+                        <li><span class="icon risk-icon">🔗</span><strong>Supply Chain Coordination:</strong> Need for vendors to provide PQC-compliant products.</li>
+                        <li><span class="icon risk-icon">⏳</span><strong>Organizational Readiness:</strong> Delays due to perceived distant threat or underestimation of complexity.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="qs" class="page-section" style="display: none;">
+            <div class="content-card">
+                <h1>🔬 Quantum Sensors (QS)</h1>
+                <p>Quantum sensors use quantum mechanics (superposition, entanglement) for unprecedented precision in measuring physical quantities. They can detect faint signals imperceptible to classical sensors, opening new frontiers in healthcare, navigation, and resource exploration. This section explores their principles, market, benefits, and risks.</p>
+                <nav class="mb-6 flex flex-wrap gap-2" id="qs-sub-nav">
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md active" onclick="showSubSection('qs', 'qs-overview')">Overview & Principles</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qs', 'qs-maturity')">Commercial Viability</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qs', 'qs-benefits')">Benefits</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qs', 'qs-risks')">Risks</button>
+                </nav>
+
+                <div id="qs-overview" class="tab-content active">
+                    <h3>Fundamental Principles and Diversity of Modalities</h3>
+                    <p>Quantum sensing exploits quantum states' sensitivity to external perturbations. By preparing, interacting, and measuring a quantum probe, one infers the quantity with high precision, potentially surpassing classical limits.</p>
+                    <p>Diverse platforms include:</p>
+                    <ul>
+                        <li><strong>Atomic Clocks (CSACs):</strong> High-precision timing for GPS-independent navigation.</li>
+                        <li><strong>Magnetometers (SQUIDs, OPMs, NV Centers):</strong> Sensing magnetic fields for medical imaging (MEG/MCG), materials science. NV centers offer nanoscale resolution at room temperature.</li>
+                        <li><strong>Gravimeters, Accelerometers, Gyroscopes (Atom Interferometry):</strong> Precise measurement of gravity, acceleration, rotation for inertial navigation, geodesy.</li>
+                        <li><strong>Quantum Imaging (Ghost Imaging, Quantum OCT):</strong> Higher resolution/sensitivity imaging, e.g., in low light or through scattering media.</li>
+                        <li><strong>Quantum Biosensors (Plasmonic, Quantum Dot, NV Center):</strong> Ultra-sensitive detection of biomolecules, single-molecule level.</li>
+                        <li><strong>Exceptional Point (EP) Sensors:</strong> Novel sensors using non-Hermitian quantum systems for enhanced sensitivity.</li>
+                    </ul>
+                    <p>Miniaturization and chip-scale integration are key trends for broader adoption.</p>
+                    <h3>Table 3.1: Major Quantum Sensor Types</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Sensor Type</th><th>Principle(s)</th><th>Application Areas</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Atomic Clock</td><td>Atomic Coherence</td><td>Timing, Navigation, Telecom</td></tr>
+                            <tr><td>Magnetometer (NV Center)</td><td>Spin of NV Defect</td><td>Medical Imaging, Materials, Nanosensing</td></tr>
+                            <tr><td>Magnetometer (SQUID)</td><td>Josephson Effect</td><td>Medical Imaging, Geophysics</td></tr>
+                            <tr><td>Magnetometer (OPM)</td><td>Atomic Coherence, Optical Pumping</td><td>Medical Imaging, Brain-Machine Interfaces</td></tr>
+                            <tr><td>Gravimeter/Accelerometer (Atom Interferometry)</td><td>Matter-Wave Interference</td><td>Inertial Navigation, Geodesy, Resource Exploration</td></tr>
+                            <tr><td>Quantum Imager</td><td>Photon Statistics, Entanglement</td><td>Medical Diagnostics, Microscopy, Surveillance</td></tr>
+                            <tr><td>Quantum Biosensor</td><td>Quantum Plasmons, Quantum Dots</td><td>Medical Diagnostics, Environmental Monitoring</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="qs-maturity" class="tab-content">
+                    <h3>Commercial Viability: Market Growth and Key Players</h3>
+                    <p>The QS market is transitioning from lab to commercial products. IDTechEx forecasts $2.2 billion by 2045 (11.4% CAGR from 2025). McKinsey estimates $6 billion by 2040. Growth is driven by investment and demand for higher performance.</p>
+                    <p>Some QS (SQUIDs, atomic clocks, quantum dots in cameras) are already commercial. Many advanced QS are emerging. Key players include startups, established tech companies, and university spin-outs. National initiatives (e.g., UK Quantum Technology Hub) foster academia-industry collaboration.</p>
+                    <p>Navigation is a promising mass-market application (autonomous vehicles, drones). Scaling manufacturing of miniaturized, robust "physics packages" is a challenge. Commercialization often follows a "solution-pull" model, driven by specific industry needs (GPS-denied navigation, medical imaging, resource mapping).</p>
+                    <div class="chart-container my-6">
+                        <canvas id="qsMarketChart"></canvas>
+                    </div>
+                </div>
+                <div id="qs-benefits" class="tab-content">
+                    <h3>Sector-Specific Benefits</h3>
+                    <ul>
+                        <li><span class="icon benefit-icon">⚕️</span><strong>Healthcare:</strong> Revolutionized diagnostics (early cancer detection), nanoscale MRI, non-invasive MEG/MCG, higher-resolution Quantum OCT.</li>
+                        <li><span class="icon benefit-icon">🧭</span><strong>Navigation and Timing:</strong> GPS-independent inertial navigation for autonomous vehicles, drones, defense. Stable timing from CSACs.</li>
+                        <li><span class="icon benefit-icon">⛏️</span><strong>Resource Exploration & Geophysics:</strong> Precise mapping of minerals, oil/gas, water. Monitoring geological hazards.</li>
+                        <li><span class="icon benefit-icon">🛡️</span><strong>Defense and Security:</strong> GPS-independent navigation, detecting faint seismic signals, locating submerged objects, enhanced RF signal intelligence.</li>
+                        <li><span class="icon benefit-icon">🏭</span><strong>Industrial & Environmental Monitoring:</strong> Non-destructive testing, infrastructure monitoring, gas leak detection, tracking pollutants, climate research.</li>
+                        <li><span class="icon benefit-icon">🌌</span><strong>Fundamental Research:</strong> Probing physics frontiers (dark matter, gravitational waves).</li>
+                    </ul>
+                </div>
+                <div id="qs-risks" class="tab-content">
+                    <h3>Associated Risks</h3>
+                    <ul>
+                        <li><span class="icon risk-icon">💔</span><strong>Fragility & Environmental Sensitivity:</strong> Highly susceptible to noise (vibrations, temperature, EM fields), requiring costly isolation.</li>
+                        <li><span class="icon risk-icon">⚖️</span><strong>Size, Weight, and Power (SWaP):</strong> Many current QS are bulky and power-intensive. Miniaturization is challenging.</li>
+                        <li><span class="icon risk-icon">💸</span><strong>Complexity and Cost:</strong> Intricate systems, often handcrafted, high manufacturing/operational costs.</li>
+                        <li><span class="icon risk-icon">📈</span><strong>Scalability and Production:</strong> Difficult to mass-produce, requires precise fabrication and specialized materials.</li>
+                        <li><span class="icon risk-icon">📏</span><strong>Calibration and Standardization:</strong> Lack of established standards hinders comparison and adoption.</li>
+                        <li><span class="icon risk-icon">🆚</span><strong>Competition with Classical Sensors:</strong> Must offer significant advantages over improving classical tech.</li>
+                        <li><span class="icon risk-icon">📊</span><strong>Data Governance:</strong> For environmental sensors, issues of interoperability, access, quality, ethics.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="qi" class="page-section" style="display: none;">
+            <div class="content-card">
+                 <h1>🌐 Quantum Internet (QI)</h1>
+                <p>The Quantum Internet envisions a global network using quantum mechanics (entanglement, superposition) for novel communication and computation beyond the classical internet. It will transmit qubits for provably secure communication, distributed quantum computing, and enhanced networked sensing. This section covers its blueprint, development status, benefits, and hurdles.</p>
+                <nav class="mb-6 flex flex-wrap gap-2" id="qi-sub-nav">
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md active" onclick="showSubSection('qi', 'qi-overview')">Conceptual Blueprint</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qi', 'qi-maturity')">Development & Roadmaps</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qi', 'qi-benefits')">Potential Benefits</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qi', 'qi-risks')">Hurdles to Realization</button>
+                </nav>
+
+                <div id="qi-overview" class="tab-content active">
+                    <h3>Conceptual Blueprint: From Qubits to Global Networks</h3>
+                    <p>Core principles include qubits, entanglement (for strong correlations), the no-cloning theorem (unknown quantum states cannot be copied), and decoherence (loss of quantum properties).</p>
+                    <p>Key components:</p>
+                    <ul>
+                        <li><strong>Quantum Nodes/End-Users:</strong> Devices generating, manipulating, storing (quantum memory), and measuring qubits.</li>
+                        <li><strong>Quantum Channels:</strong> Optical fibers or free-space links for qubit transmission.</li>
+                        <li><strong>Quantum Repeaters:</strong> Essential for long distances; use entanglement swapping, QEC, quantum memories (not classical amplification).</li>
+                        <li><strong>Quantum Memory:</strong> Reliable storage of quantum states.</li>
+                        <li><strong>Transducers:</strong> Convert qubits between physical encodings (e.g., microwave to optical).</li>
+                        <li><strong>Classical Control Network:</strong> For coordinating quantum operations.</li>
+                    </ul>
+                    <p>Primary function is distributing entanglement. A layered protocol stack is being conceptualized. Development is hardware-centric, relying on quantum repeaters and memories. Classical control channels need PQC for security.</p>
+                </div>
+                <div id="qi-maturity" class="tab-content">
+                    <h3>Current Development Status, Experimental Networks, and Strategic Roadmaps</h3>
+                    <p>QI is in nascent stages. Current "quantum networks" are mostly QKD networks or entanglement testbeds. Transition to versatile QI depends on repeater and memory breakthroughs.</p>
+                    <p>Experimental Networks: China (4,600 km space-to-ground QKD), UK (UKQN, 410 km fiber), US (CQE, DoE National Labs backbone plan), EU (EuroQCI, QIA), Canada (QEYSSat).</p>
+                    <p>Strategic Roadmaps:</p>
+                    <ul>
+                        <li><strong>US DoE Blueprint (2020):</strong> Staged approach, prototype within a decade.</li>
+                        <li><strong>EU Strategic Industry Roadmap 2025 (QuIC):</strong> TRL 9 for many components by 2025, EuroQCI operational by 2027.</li>
+                        <li><strong>Canada's National Quantum Strategy:</strong> Long-term (7+ years) secure quantum communication network.</li>
+                    </ul>
+                    <p>General expert opinion: Large-scale repeater network 10+ years away. Significant government/private funding (Global QI market: $8.1B by 2030, >25% CAGR. R&D funding >$3B in 2023).</p>
+                    
+                    <h3>Table 4.1: Stages of Quantum Internet Development (Conceptual)</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Stage</th><th>Key Capabilities</th><th>Applications Enabled</th><th>Key Hurdles</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1: Trusted Repeater / Prepare & Measure</td><td>Secure key exchange (point-to-point, trusted nodes)</td><td>QKD, QRNG</td><td>Device robustness, QKD standards</td></tr>
+                            <tr><td>2: Entanglement Distribution</td><td>Entanglement distribution (metro distances)</td><td>Device-Independent QKD, basic sensor sync</td><td>Efficient entanglement, low-loss links, early memory</td></tr>
+                            <tr><td>3: Quantum Memory Networks</td><td>Longer distance entanglement (1st gen repeaters, memory)</td><td>Basic distributed QC, networked sensing</td><td>Functional memories, reliable 1st gen repeaters</td></tr>
+                            <tr><td>4: Few-Qubit Fault-Tolerant</td><td>Limited QEC, robust entanglement</td><td>More complex distributed algorithms, fault-tolerant sensors</td><td>Efficient QEC for networks</td></tr>
+                            <tr><td>5: Quantum Computing Networks (Full QI)</td><td>Scalable, fault-tolerant networks connecting QCs</td><td>Full distributed QC, large simulations</td><td>Advanced repeaters, logical qubits, mature protocols</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="qi-benefits" class="tab-content">
+                    <h3>Potential Benefits</h3>
+                    <ul>
+                        <li><span class="icon benefit-icon">🔐</span><strong>Ultra-Secure Communication:</strong> QKD for eavesdropping-resistant key exchange. Tamper-proof data transmission. Advanced crypto (secure multi-party computation, blind QC).</li>
+                        <li><span class="icon benefit-icon">🔗</span><strong>Distributed Quantum Computing:</strong> Linking QCs to create more powerful distributed systems. Remote access to QC resources (Quantum-as-a-Service).</li>
+                        <li><span class="icon benefit-icon">📡</span><strong>Networked Quantum Sensing:</strong> Entangled sensor networks for enhanced precision (telescopes, GPS-like systems, clock synchronization, environmental monitoring).</li>
+                        <li><span class="icon benefit-icon">⏱️</span><strong>Other Applications:</strong> Faster communication for certain tasks, quantum leader election, precise time sync.</li>
+                    </ul>
+                    <p>Entanglement distribution is the QI's most distinctive feature, enabling "collaborative quantum advantage" with networks of smaller devices.</p>
+                </div>
+                <div id="qi-risks" class="tab-content">
+                    <h3>Hurdles to Realization</h3>
+                    <ul>
+                        <li><span class="icon risk-icon">📉</span><strong>Decoherence:</strong> Qubit fragility limits transmission distance and storage time.</li>
+                        <li><span class="icon risk-icon">🕸️</span><strong>Scalability:</strong> Scaling small experiments to global networks is monumental (photon loss, errors).</li>
+                        <li><span class="icon risk-icon">🔗</span><strong>Quantum Repeaters:</strong> Essential for long distances (repeaterless bound ~few hundred km). Technologically demanding, still in R&D. Critical bottleneck.</li>
+                        <li><span class="icon risk-icon">💾</span><strong>Quantum Memory:</strong> Storing quantum states with high fidelity and long coherence is challenging.</li>
+                        <li><span class="icon risk-icon">💲</span><strong>Cost:</strong> Specialized hardware (lasers, detectors, cryogenics, repeaters) is very expensive.</li>
+                        <li><span class="icon risk-icon">⚙️</span><strong>Hardware Limitations:</strong> Efficient entangled photon generation, minimizing channel loss.</li>
+                        <li><span class="icon risk-icon">📜</span><strong>Software and Protocols:</strong> New networking protocols needed for quantum properties.</li>
+                        <li><span class="icon risk-icon">↔️</span><strong>Integration with Classical Infrastructure:</strong> Coexistence, synchronization, dual quantum-classical protocols.</li>
+                        <li><span class="icon risk-icon">🛡️</span><strong>Security of Network Components:</strong> Repeaters and nodes vulnerable to tampering/side-channel attacks.</li>
+                    </ul>
+                    <p>Initial QI likely specialized networks for high-value communities (research, finance, defense) due to cost/complexity.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="qkd" class="page-section" style="display: none;">
+            <div class="content-card">
+                <h1>🔑 Quantum Key Distribution (QKD)</h1>
+                <p>QKD is the most mature quantum communication application. It uses quantum mechanics to establish shared, secret cryptographic keys secure against even quantum computers. This section details its principles, maturity, benefits, and limitations.</p>
+                <nav class="mb-6 flex flex-wrap gap-2" id="qkd-sub-nav">
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md active" onclick="showSubSection('qkd', 'qkd-overview')">Principles & Security</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qkd', 'qkd-maturity')">Maturity & Deployments</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qkd', 'qkd-benefits')">Benefits</button>
+                    <button class="sub-nav-button bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-md" onclick="showSubSection('qkd', 'qkd-risks')">Limitations</button>
+                </nav>
+
+                <div id="qkd-overview" class="tab-content active">
+                    <h3>Principles of Unconditionally Secure Key Exchange</h3>
+                    <p>QKD's security is based on physics, not computational difficulty.</p>
+                    <ul>
+                        <li><strong>Quantum State Encoding:</strong> Information (key bits) encoded on single photons (e.g., polarization in BB84 protocol).</li>
+                        <li><strong>No-Cloning Theorem:</strong> Impossible to copy an unknown quantum state perfectly.</li>
+                        <li><strong>Measurement Disturbs System:</strong> Eavesdropping introduces detectable anomalies.</li>
+                        <li><strong>Key Sifting & Reconciliation:</strong> Alice & Bob compare bases (not outcomes) over authenticated classical channel, discard mismatched bits, perform error correction & privacy amplification.</li>
+                    </ul>
+                    <p>Aims for "unconditional security," but practical security depends on implementation, device physics, and classical channel security. PQC often needed for classical channel authentication.</p>
+                </div>
+                <div id="qkd-maturity" class="tab-content">
+                    <h3>Technological Maturity, Commercial Landscape, and Real-World Deployments</h3>
+                    <p>QKD is the most mature quantum application, with commercial off-the-shelf systems. Demonstrated over hundreds/thousands of km (fiber, satellite).</p>
+                    <p>Commercial vendors: ID Quantique, Toshiba, MagiQ, QuintessenceLabs, QuantumCTek, QNu Labs, Quantum Xchange.</p>
+                    <p>Market: Global quantum communication market (mostly QKD) ~$1.1B in 2023, projected to $8.6B by 2032.</p>
+                    <p>Deployments: Government/defense, finance (JPMorgan, HSBC), critical infrastructure, healthcare, data centers, telecom. Emerging interest in automotive (V2X).</p>
+                    <p>Adoption is niche due to high security needs and cost. Satellite-based QKD (e.g., China's Micius) could overcome terrestrial distance limits.</p>
+                    <h3>Table 5.1: Illustrative Commercial QKD System Capabilities</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Vendor (Example)</th><th>Type</th><th>Key Rate</th><th>Max Distance (Direct Fiber)</th><th>Use Cases</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>ID Quantique (Clavis XG)</td><td>Fiber</td><td>kbps-Mbps</td><td>~100-150 km</td><td>Gov, Finance, Data Centers</td></tr>
+                            <tr><td>Toshiba Quantum Info</td><td>Fiber</td><td>kbps-Mbps</td><td>Up to ~150 km</td><td>Finance, Public Sector, Telecom</td></tr>
+                            <tr><td>QuantumCTek</td><td>Fiber, Satellite</td><td>Varies</td><td>Terrestrial, Satellite</td><td>Gov, Finance, Power Grids</td></tr>
+                            <tr><td>MagiQ Technologies (QPN)</td><td>Fiber</td><td>kbps</td><td>~100 km</td><td>Research, Defense, Enterprise</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="chart-container my-6">
+                        <canvas id="qkdMarketChart"></canvas>
+                    </div>
+                </div>
+                <div id="qkd-benefits" class="tab-content">
+                    <h3>Benefits: Protecting High-Value Data</h3>
+                    <ul>
+                        <li><span class="icon benefit-icon">🛡️</span><strong>Quantum-Safe Security:</strong> Keys secure against classical and quantum computers (based on physics).</li>
+                        <li><span class="icon benefit-icon">🕵️</span><strong>Eavesdropping Detection:</strong> Real-time detection of interception attempts.</li>
+                        <li><span class="icon benefit-icon">📦</span><strong>Protection Against HNDL:</strong> Prevents covert key interception and storage.</li>
+                        <li><span class="icon benefit-icon">💎</span><strong>Securing High-Value Data:</strong> Ideal for government, military, finance, healthcare.</li>
+                    </ul>
+                    <p>QKD's value is making covert key interception impossible during exchange.</p>
+                </div>
+                <div id="qkd-risks" class="tab-content">
+                    <h3>Limitations</h3>
+                    <ul>
+                        <li><span class="icon risk-icon">📏</span><strong>Distance Limitations:</strong> Photon loss restricts direct fiber links to a few hundred km. Requires trusted relays (breaks end-to-end quantum security) or quantum repeaters (developmental).</li>
+                        <li><span class="icon risk-icon">⚙️</span><strong>Special Purpose Equipment:</strong> Dedicated hardware, dark fiber/free-space links. Costly, complex to deploy. Less flexible than software.</li>
+                        <li><span class="icon risk-icon">💰</span><strong>High Costs:</strong> Implementation and operational costs are high.</li>
+                        <li><span class="icon risk-icon">🔗</span><strong>Partial Solution (Requires Authentication):</strong> Needs separate classical authentication (ideally PQC).</li>
+                        <li><span class="icon risk-icon">🛡️</span><strong>Security & Validation Challenges:</strong> Real-world hardware imperfections can create vulnerabilities. Validating practical security is hard.</li>
+                        <li><span class="icon risk-icon">🚫</span><strong>Denial of Service (DoS) Risk:</strong> Sensitivity to disturbance makes it susceptible to DoS.</li>
+                        <li><span class="icon risk-icon">📡</span><strong>Wireless Incompatibility:</strong> Current wireless QKD (free-space optics) not compatible with RF wireless.</li>
+                        <li><span class="icon risk-icon">👨‍🔬</span><strong>Talent Shortage:</strong> Requires specialized expertise.</li>
+                        <li><span class="icon risk-icon">🤔</span><strong>Skepticism from Security Agencies:</strong> Some (e.g., NSA) view PQC as more cost-effective and broadly applicable for now.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="interconnections" class="page-section" style="display: none;">
+            <div class="content-card">
+                <h1>🔗 Interconnections in the Quantum Ecosystem</h1>
+                <p>The five quantum technologies—QC, PQC, QS, QI, and QKD—are not isolated. They form an interconnected ecosystem where advancements and challenges in one area impact others. This section explores these crucial synergies and dependencies, offering a holistic view of the burgeoning quantum landscape.</p>
+                
+                <h3>Quantum Computing's Dual Role: Enabler and Threat</h3>
+                <p><strong>QC as a Threat:</strong> Its ability to break current public-key cryptography (RSA, ECC) using Shor's algorithm is the primary driver for PQC development and a motivator for QKD research. The timeline for "cryptanalytically relevant quantum computers" (CRQCs) influences the urgency for PQC deployment.</p>
+                <p><strong>QC as an Enabler:</strong></p>
+                <ul>
+                    <li>The QC threat itself catalyzes PQC and QKD research.</li>
+                    <li>QC can help design novel materials for quantum sensors and process complex sensor data.</li>
+                    <li>QC is a key application for the Quantum Internet (distributed QC). QC principles can aid QI component design and error correction.</li>
+                </ul>
+
+                <h3>PQC and QKD: A Comparative Analysis for Quantum-Resistant Security</h3>
+                <p>PQC and QKD are primary strategies against the quantum crypto threat, but differ fundamentally. They are likely complementary: PQC for broad, software-upgradable security; QKD for specific high-value links needing eavesdropping detection. PQC may secure QKD's classical authentication channels.</p>
+                
+                <h3>Table 6.1: PQC vs. QKD Comparison</h3>
+                 <table>
+                    <thead>
+                        <tr><th>Feature</th><th>Post-Quantum Cryptography (PQC)</th><th>Quantum Key Distribution (QKD)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Security Basis</td><td>Computational hardness (believed hard for QCs)</td><td>Quantum mechanics (no-cloning, measurement disturbance)</td></tr>
+                        <tr><td>Key Exchange</td><td>Algorithmic</td><td>Physical exchange of quantum states (photons)</td></tr>
+                        <tr><td>Authentication</td><td>Can be inherent (digital signatures)</td><td>Requires separate authenticated classical channel (PQC/pre-shared keys)</td></tr>
+                        <tr><td>Eavesdropping Detection</td><td>No inherent real-time detection</td><td>Real-time detection on quantum channel</td></tr>
+                        <tr><td>Scalability</td><td>Highly scalable (software)</td><td>Distance-limited, infrastructure needs (trusted nodes/repeaters)</td></tr>
+                        <tr><td>Cost</td><td>Software upgrade costs, potential performance overhead</td><td>High (specialized hardware, dedicated fiber)</td></tr>
+                        <tr><td>Infrastructure</td><td>Runs on existing classical infrastructure</td><td>Requires dedicated quantum channels & devices</td></tr>
+                        <tr><td>Maturity</td><td>Standards recently finalized, products emerging</td><td>Most mature quantum app, commercial systems available</td></tr>
+                        <tr><td>Use Cases</td><td>Broad replacement for public-key crypto</td><td>Securing specific high-value point-to-point links</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>The Quantum Internet as a Platform for Distributed QC and Advanced Sensor Arrays</h3>
+                <p>The QI's transformative potential lies in networking quantum devices:</p>
+                <ul>
+                    <li><strong>Distributed Quantum Computing:</strong> Linking QCs to tackle larger problems, democratizing access.</li>
+                    <li><strong>Networked Quantum Sensors:</strong> Entangling sensors for enhanced collective precision (telescopes, clocks, environmental monitoring).</li>
+                </ul>
+                <p>This requires high-fidelity entanglement distribution, quantum memory, low-latency communication, and robust quantum repeaters.</p>
+
+                <h3>Augmenting Quantum Sensor Capabilities through QC and QI</h3>
+                <ul>
+                    <li><strong>QC for Sensor Data Processing:</strong> Advanced signal processing, noise filtering, pattern recognition for complex sensor data.</li>
+                    <li><strong>QI for Networked & Secure Sensing:</strong> Distributing entanglement for enhanced precision; secure data transmission from sensors (via QKD/quantum crypto).</li>
+                    <li><strong>Feedback and Control:</strong> Real-time feedback loops between distributed sensors and QCs via the QI.</li>
+                </ul>
+
+                <h3>Interdependencies: Impact of Breakthroughs or Delays</h3>
+                <ul>
+                    <li><strong>QC Advances:</strong>
+                        <br><span class="benefit-icon">Positive:</span> Aids sensor design, QI protocol simulation, distributed QC.
+                        <br><span class="risk-icon">Urgency Driver:</span> Faster CRQCs increase urgency for PQC/QKD.
+                    </li>
+                    <li><strong>Quantum Repeater/QI Advances:</strong>
+                        <br><span class="benefit-icon">Positive:</span> Enables long-distance QI, advanced QKD, distributed QC, networked sensors.
+                        <br><span class="risk-icon">Negative:</span> Delays hamper terrestrial QI, push reliance to satellite QKD/QI.
+                    </li>
+                    <li><strong>PQC Standardization/Adoption:</strong>
+                        <br><span class="benefit-icon">Positive:</span> Secures classical channels for QKD and QI.
+                        <br><span class="risk-icon">Negative:</span> Delays/vulnerabilities create security gaps for hybrid systems.
+                    </li>
+                    <li><strong>Quantum Sensor Advances:</strong>
+                        <br><span class="benefit-icon">Positive:</span> Provide components for QI/QC, drive demand for secure QI/QC processing.
+                        <br><span class="risk-icon">Negative:</span> High cost/fragility might dampen investment in enabling QI/QC.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="conclusion" class="page-section" style="display: none;">
+            <div class="content-card">
+                <h1>📜 Conclusion and Future Outlook</h1>
+                <p>The quantum revolution is ushering in transformative capabilities. Each domain—QC, PQC, QS, QI, and QKD—has immense promise and significant challenges.</p>
+                <p><strong>Quantum Computing:</strong> Long-term force (10-20 years for widespread FTQC). Immediate impact is the cryptographic threat.</p>
+                <p><strong>Post-Quantum Cryptography:</strong> Immediate, broad defense. Critical period is next 10-15 years for widespread adoption. Risks: implementation complexity, performance, algorithm security.</p>
+                <p><strong>Quantum Sensors:</strong> Closest to broad commercial impact (5-15 years). Challenges: miniaturization, cost, standardization.</p>
+                <p><strong>Quantum Internet:</strong> Longer-term vision (15-25+ years for full QI), depends on repeater/memory breakthroughs. Strong geopolitical interest.</p>
+                <p><strong>Quantum Key Distribution:</strong> Commercial now for niche, high-security links. Complementary to PQC. Distance, cost, infrastructure are limitations. Satellite QKD may help.</p>
+                
+                <h3>Interconnections and Future Strategy</h3>
+                <p>These technologies are intertwined: QC threat drives PQC/QKD. PQC secures classical parts of QKD/QI. QI connects QCs and enhances QS. QS provides tools for other quantum systems.</p>
+                <p>The next decade is critical. Success requires:</p>
+                <ul>
+                    <li>Sustained R&D Investment</li>
+                    <li>Standardization and Interoperability</li>
+                    <li>Workforce Development</li>
+                    <li>Public-Private Partnerships</li>
+                    <li>Ethical and Societal Considerations</li>
+                </ul>
+                <p>Understanding each technology's state, potential, risks, and its place in the quantum ecosystem is vital for harnessing benefits while mitigating perils.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-sky-800 text-sky-200 text-center p-6 mt-8">
+        <p>&copy; 2025 Quantum Technology Insights Explorer. Information based on the "Quantum Technologies" report.</p>
+    </footer>
+
+    <script>
+        let currentSection = 'introduction';
+        let currentSubSections = {
+            qc: 'qc-overview',
+            pqc: 'pqc-overview',
+            qs: 'qs-overview',
+            qi: 'qi-overview',
+            qkd: 'qkd-overview'
+        };
+
+        function showSection(sectionId) {
+            // Hide all page sections and remove 'active' class
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            });
+            // Show the target page section and add 'active' class
+            const targetPageSection = document.getElementById(sectionId);
+            if (targetPageSection) {
+                targetPageSection.style.display = 'block';
+                targetPageSection.classList.add('active');
+            } else {
+                console.error(`Page section with id "${sectionId}" not found.`);
+            }
+
+            // Deactivate all main navigation buttons and find the one to activate
+            let buttonToActivate = null;
+            document.querySelectorAll('#main-nav .nav-button').forEach(button => {
+                button.classList.remove('active');
+                // Check if this button corresponds to the sectionId being activated
+                // This relies on the onclick attribute string matching exactly.
+                if (button.getAttribute('onclick') === `showSection('${sectionId}')`) {
+                    buttonToActivate = button;
+                }
+            });
+
+            // Activate the correct button
+            if (buttonToActivate) {
+                buttonToActivate.classList.add('active');
+            } else {
+                 // If called programmatically (e.g. initial load) and the above didn't find it
+                 // (e.g. if onclick attribute was slightly different), try a more direct query.
+                 // This is a fallback, the loop above should generally work.
+                const specificButton = document.querySelector(`#main-nav .nav-button[onclick="showSection('${sectionId}')"]`);
+                if (specificButton) {
+                    specificButton.classList.add('active');
+                } else {
+                    console.warn(`Navigation button for section "${sectionId}" not found or onclick mismatch.`);
+                }
+            }
+            
+            currentSection = sectionId;
+            window.scrollTo(0, 0);
+        }
+
+        function showSubSection(sectionId, subSectionId) {
+            document.querySelectorAll(`#${sectionId} .tab-content`).forEach(content => {
+                content.style.display = 'none';
+                content.classList.remove('active');
+            });
+            const targetSubSectionContent = document.getElementById(subSectionId);
+            if (targetSubSectionContent) {
+                targetSubSectionContent.style.display = 'block';
+                targetSubSectionContent.classList.add('active');
+            }
+
+
+            document.querySelectorAll(`#${sectionId}-sub-nav .sub-nav-button`).forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // event.target correctly refers to the clicked button in this context
+            if (event && event.target) {
+                 event.target.classList.add('active');
+            } else {
+                // Fallback if event.target is not available (should not happen for sub-sections called via onclick)
+                const specificButton = document.querySelector(`#${sectionId}-sub-nav .sub-nav-button[onclick="showSubSection('${sectionId}', '${subSectionId}')"]`);
+                if (specificButton) {
+                    specificButton.classList.add('active');
+                }
+            }
+            currentSubSections[sectionId] = subSectionId;
+        }
+
+        // Initialize default views
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('introduction');
+            // Initialize charts
+            initQCMarketChart();
+            initQCFaultToleranceChart();
+            initQSMarketChart();
+            initQKDMarketChart();
+
+            // Set initial active sub-tabs based on currentSubSections
+            for (const section in currentSubSections) {
+                const subSectionId = currentSubSections[section];
+                const button = document.querySelector(`#${section}-sub-nav .sub-nav-button[onclick="showSubSection('${section}', '${subSectionId}')"]`);
+                if (button) button.classList.add('active');
+                
+                const content = document.getElementById(subSectionId);
+                if (content) content.classList.add('active'); else console.warn(`Content for subSectionId ${subSectionId} not found`);
+            }
+        });
+
+        function initQCMarketChart() {
+            const ctx = document.getElementById('qcMarketChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['2023', '2040 (Projected)'],
+                    datasets: [{
+                        label: 'Quantum Computing Market Value (USD Billion)',
+                        data: [9, 131],
+                        backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Market Value (Billion USD)' } } },
+                    plugins: { legend: { display: true }, tooltip: { enabled: true } }
+                }
+            });
+        }
+        
+        function initQCFaultToleranceChart() {
+            const ctx = document.getElementById('qcFaultToleranceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar', 
+                data: {
+                    labels: ['Experts: By 2035', 'Experts: After 2040', 'Nvidia CEO: Next 15-20 Years'],
+                    datasets: [{
+                        label: 'Fault Tolerance Expectation',
+                        data: [72, 28, 100], 
+                        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(153, 102, 255, 0.6)'],
+                        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 206, 86, 1)', 'rgba(153, 102, 255, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', 
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { beginAtZero: true, title: { display: true, text: '% of Experts / General Timeline Indication' } } },
+                    plugins: { 
+                        legend: { display: false }, 
+                        tooltip: { 
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        if (context.label === 'Experts: By 2035' || context.label === 'Experts: After 2040') {
+                                            label += context.parsed.x + '%';
+                                        } else {
+                                            label = 'Nvidia CEO: 15-20 more years';
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        } 
+                    }
+                }
+            });
+        }
+
+        function initQSMarketChart() {
+            const ctx = document.getElementById('qsMarketChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['IDTechEx 2045 (Projected)', 'McKinsey 2040 (Projected)'],
+                    datasets: [{
+                        label: 'Quantum Sensors Market Value (USD Billion)',
+                        data: [2.2, 6],
+                        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
+                        borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Market Value (Billion USD)' } } },
+                    plugins: { legend: { display: true }, tooltip: { enabled: true } }
+                }
+            });
+        }
+
+        function initQKDMarketChart() {
+            const ctx = document.getElementById('qkdMarketChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2023', '2032 (Projected)'],
+                    datasets: [{
+                        label: 'QKD Market Value (USD Billion)',
+                        data: [1.1, 8.6],
+                        fill: false,
+                        borderColor: 'rgb(255, 159, 64)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Market Value (Billion USD)' } } },
+                    plugins: { legend: { display: true }, tooltip: { enabled: true } }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
